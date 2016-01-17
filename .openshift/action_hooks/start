@@ -1,0 +1,14 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_DIY_IP:8080
+export APP_NAME="change-me"
+export JAVA_VERSION="1.8.0_66"
+export JRE_FILENAME="server-jre-8u66-linux-x64.tar.gz"
+export JRE_URL="http://download.oracle.com/otn-pub/java/jdk/8u66-b17/$JRE_FILENAME"
+
+if [ ! -d $OPENSHIFT_DATA_DIR/jdk$JAVA_VERSION ]; then
+  cd $OPENSHIFT_DATA_DIR && wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" $JRE_URL && tar -zxf $JRE_FILENAME && rm $JRE_FILENAME
+fi
+
+cd $OPENSHIFT_REPO_DIR/app && export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk$JAVA_VERSION && export PATH=$OPENSHIFT_DATA_DIR/jdk$JAVA_VERSION/bin:$PATH && chmod u+x ./bin/$APP_NAME && nohup ./bin/$APP_NAME |& /usr/bin/logshifter -tag $APP_NAME &
